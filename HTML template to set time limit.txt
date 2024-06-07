@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>App Time Limit Alerting System</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Set Time Limits for Your Apps</h1>
+        <form action="{{ url_for('set_limit') }}" method="post">
+            <label for="app_name">App Name:</label>
+            <input type="text" id="app_name" name="app_name" required>
+            <label for="time_limit">Time Limit (minutes):</label>
+            <input type="number" id="time_limit" name="time_limit" required>
+            <button type="submit">Set Limit</button>
+        </form>
+        <h2>Current Limits</h2>
+        <ul>
+            {% for app_name, end_time in limits.items() %}
+                <li>{{ app_name }} - {{ end_time }}</li>
+            {% endfor %}
+        </ul>
+        <button onclick="checkLimits()">Check Limits</button>
+        <div id="alerts"></div>
+    </div>
+
+    <script>
+        function checkLimits() {
+            fetch('/check_limits')
+                .then(response => response.json())
+                .then(alerts => {
+                    const alertsDiv = document.getElementById('alerts');
+                    alertsDiv.innerHTML = '';
+                    if (alerts.length > 0) {
+                        alertsDiv.innerHTML = '<h3>Time Limit Alerts:</h3><ul>' +
+                            alerts.map(alert => `<li>${alert}</li>`).join('') +
+                            '</ul>';
+                    } else {
+                        alertsDiv.innerHTML = '<p>No alerts at this time.</p>';
+                    }
+                });
+        }
+    </script>
+</body>
+</html>
